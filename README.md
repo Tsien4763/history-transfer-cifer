@@ -1,11 +1,14 @@
-# History Transfer (CIFEr core)
+# When Does History Transfer? (CIFEr Core)
 
-Conditional historical-error retrieval, cross-market ridge source transfer, and QLIKE calibration for multi-market realized-volatility forecasting (IEEE SSCI 2027 / CIFEr, accepted full paper).
+[中文说明](README_ZH.md)
 
-Cross-market error reuse mixes two separate effects: finding similar historical dates using joint market states versus transferring other markets' residual errors into a target market.
+Under a temporal regime shift, when does reusing past forecast errors from a related series improve accuracy, and when should a model fall back to its own local residual?
 
-- `src/residual_source_ridge.py`: QLIKE loss (`ql`), equal-market macro scoring (`macro`), cross-market ridge weights excluding own-market leakage, and validation-year multiplier calibration (`calibrate`).
-- `src/core.py`: original CIFEr PyTorch retrieval encoder (`LearnedGlobalEncoder`) and market graph (`RegimeMarketGraph`) kept as reference.
+This repository contains the CIFEr core implementation of *When Does History Transfer?* (IEEE SSCI 2027 full paper; NeurIPS 2026 FMTS Workshop accepted). Rather than pooling all historical residuals unconditionally, the model retrieves candidate error windows by context similarity, separates each error's source provenance, and fits a residual-source ridge layer with explicit fallback gating and trust calibration.
+
+- `src/core.py`: context matching, error-source decomposition, and forecast evaluation utilities.
+- `src/residual_source_ridge.py`: conditional residual-source ridge estimation with fallback and trust calibration.
+- `src/paths.py`: lightweight path helpers for local runs.
 
 ## Quick start
 
@@ -15,8 +18,8 @@ python run_demo.py
 python -m unittest discover -s tests -v
 ```
 
-`run_demo.py` fits zero-diagonal cross-market ridge weights on a synthetic 6-market error panel, calibrates `gamma` on a validation split, and prints held-out macro QLIKE before and after source transfer.
+`run_demo.py` runs the residual-source ridge adapter on synthetic multi-regime series and compares unconditional reuse against trust-calibrated transfer.
 
 ## Scope
 
-This is the CIFEr original codebase (not the separate FMTS revision). Reproducing the 31-index empirical tables requires the Oxford-Man realized-volatility data and PyTorch.
+This is the public CIFEr core MVP on synthetic series. The full multi-market volatility and macro benchmark suite is available upon request.
